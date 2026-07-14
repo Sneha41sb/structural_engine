@@ -4,10 +4,10 @@ import plotly.graph_objects as go
 import ctypes
 import os
 
-# 1. UI Page & Platform Configurations
+# 1. Page & Layout Configuration
 st.set_page_config(layout="wide")
-st.title("Next-Gen Unified Lifecycle Engineering Engine")
-st.caption("Ecosystem Dashboard: SOLIDWORKS Parametric Geometry, ANSYS Stress Simulation, and Site Logistics")
+st.title("Next-Gen 3D Unified Lifecycle Engineering Engine")
+st.caption("Advanced 3D Workspace Dashboard: SOLIDWORKS Parametric Geometry, ANSYS Stress Simulation, and Site Logistics")
 
 # 2. Dynamic Memory Bridge (C++ Core Engine Loader)
 lib_path = os.path.abspath("libengine.so")
@@ -56,72 +56,112 @@ soil_db = {
 
 # 5. Integrated Ecosystem Math Pipeline Execution
 if cpp_is_ready:
-    # Pass input streams directly down to the high-speed compiled C++ optimization solver kernel
+    # Trigger native high-speed C++ optimization solver kernel
     optimized_area = cpp_engine.simulate_and_optimize_core(
         num_floors, floor_height, bay_width, float(wind_force), float(drift_limit), float(yield_strength)
     )
     
-    # Process C++ output into driving dimensions for SOLIDWORKS design tables
     optimized_thickness = np.sqrt(optimized_area)
     
-    # Calculate geometric volumes (Baseline vs Optimized)
-    total_skeleton_length = (num_floors * 2 * floor_height) + (num_floors * bay_width)
+    # Calculate volumetric properties
+    total_skeleton_length = (num_floors * 4 * floor_height) + (num_floors * 4 * bay_width)
     baseline_volume = total_skeleton_length * 0.25
     optimized_volume = total_skeleton_length * optimized_area
     volume_saved = baseline_volume - optimized_volume
     percentage_saved = (volume_saved / baseline_volume) * 100
     
-    # SYSTEM INTERACTION BRIDGE: Structural mass feeds foundation dead load pressure rules
-    building_pressure = (optimized_volume * 24.0) / (bay_width * 2.0)
+    # Structural mass pressure bridge
+    building_pressure = (optimized_volume * 24.0) / (bay_width * bay_width)
     
-    # Process logistics machine track footprint pressures
+    # Process logistics machine track pressures
     asset = machinery_db[machinery_class]
     total_weight = asset["static_weight"] * (1.3 if dynamic_mode else 1.0)
     machinery_pressure = total_weight / asset["area"]
     
-    # Combine forces for global geotechnical structural evaluation
+    # Combined Geotechnical metrics
     total_system_pressure = building_pressure + machinery_pressure
     soil = soil_db[selected_soil]
     
     phi_rad = np.radians(soil["friction_angle"])
     standoff_distance = 4.0 * np.tan(np.pi/4.0 - phi_rad/2.0) * soil["multiplier"]
 
-    # FINANCIAL AND CARBON LIFE-CYCLE ESTIMATOR METHODOLOGIES
-    concrete_unit_cost = 120.0  # Assumed standard global market unit cost per cubic meter ($/m³)
-    carbon_intensity_factor = 320.0  # Embodied carbon footprint coefficient per cubic meter (kg CO₂e/m³)
-    
+    concrete_unit_cost = 120.0  
+    carbon_intensity_factor = 320.0  
     financial_savings = volume_saved * concrete_unit_cost
     carbon_mass_saved = volume_saved * carbon_intensity_factor
 
-    # 6. Interactive Visual Dashboard Render
+    # 6. Interactive Visual Dashboard Render (Upgraded to 3D)
     col_vis, col_sim = st.columns([2, 1])
     
     with col_vis:
-        st.subheader("Multi-Variable Topological Analysis")
+        st.subheader("3D Interactive Topology Space")
         fig = go.Figure()
         
-        # Draw architectural floor interval lines
-        for f in range(num_floors + 1):
-            z = f * floor_height
-            fig.add_trace(go.Scatter(x=[0, bay_width], y=[z, z], mode='lines', line=dict(color='lightgray', width=1)))
+        # Line width mapping for 3D elements
+        lw_3d = max(2, int(optimized_area * 50))
+        
+        # GENERATIVE 3D FRAME MODELING GRID LOOP (SOLIDWORKS & ANSYS WIREFRAME PARADIGM)
+        corners = [(0, 0), (bay_width, 0), (bay_width, bay_width), (0, bay_width)]
+        
+        # Plot 4 Vertical 3D Column Members
+        for cx, cy in corners:
+            fig.add_trace(go.Scatter3d(
+                x=[cx, cx], 
+                y=[cy, cy], 
+                z=[0, num_floors * floor_height],
+                mode='lines', 
+                line=dict(color='darkblue', width=lw_3d), 
+                name="Column Element"
+            ))
             
-        # Plot columns dynamically scaled by the native C++ optimization loop outputs
-        lw = max(1, int(optimized_area * 60))
-        fig.add_trace(go.Scatter(x=[0, 0], y=[0, num_floors*floor_height], mode='lines', line=dict(color='darkblue', width=lw), name="SOLIDWORKS Extrusion Profile"))
-        fig.add_trace(go.Scatter(x=[bay_width, bay_width], y=[0, num_floors*floor_height], mode='lines', line=dict(color='darkblue', width=lw)))
+        # Plot Horizontal 3D Floor Diaphragm Beam Members
+        for f in range(1, num_floors + 1):
+            z_val = f * floor_height
+            bx = [0, bay_width, bay_width, 0, 0]
+            by = [0, 0, bay_width, bay_width, 0]
+            bz = [z_val, z_val, z_val, z_val, z_val]
+            fig.add_trace(go.Scatter3d(
+                x=bx, 
+                y=by, 
+                z=bz,
+                mode='lines', 
+                line=dict(color='royalblue', width=max(1, lw_3d // 2)), 
+                name="Beam Element"
+            ))
+
+        # GEOTECHNICAL SAFETY ZONE SURFACE MAPPING (3D CONTAINER ZONE)
+        sx = [-standoff_distance, bay_width + standoff_distance, bay_width + standoff_distance, -standoff_distance, -standoff_distance]
+        sy = [-standoff_distance, -standoff_distance, bay_width + standoff_distance, bay_width + standoff_distance, -standoff_distance]
+        sz = [0, 0, 0, 0, 0]
         
-        # Draw the open foundation safety clearance zone lines
-        fig.add_trace(go.Scatter(x=[-standoff_distance, 0, 0], y=[0, 0, -4.0], mode='lines+markers', line=dict(color='crimson', width=3, dash='dot'), name="Exclusion Boundary"))
+        fig.add_trace(go.Scatter3d(
+            x=sx, 
+            y=sy, 
+            z=sz,
+            mode='lines', 
+            line=dict(color='crimson', width=4, dash='dot'), 
+            name="Exclusion Boundary"
+        ))
         
-        fig.update_layout(xaxis_title='Site Coordinates (meters)', yaxis_title='Elevation / Foundation Pit Depth (meters)', height=440, showlegend=False)
+        # Establish viewport camera configurations
+        fig.update_layout(
+            scene=dict(
+                xaxis_title='X: Site Width (m)',
+                yaxis_title='Y: Site Depth (m)',
+                zaxis_title='Z: Elevation (m)',
+                camera=dict(eye=dict(x=1.5, y=1.5, z=1.2))
+            ),
+            height=500,
+            showlegend=False
+        )
         st.plotly_chart(fig, use_container_width=True)
 
     with col_sim:
         st.subheader("Unified Multi-Software Validation Report")
         
         # SOLIDWORKS Integration UI Block
-        st.markdown("**SOLIDWORKS Feature Driver Geometry**")
-        st.caption(f"Driven Table Parameter: Square Column Section = **{optimized_thickness:.3f}m x {optimized_thickness:.3f}m**")
+        st.markdown("**SOLIDWORKS Structural Feature Parameters**")
+        st.caption(f"Driven Table Parameter: Square Column Section = {optimized_thickness:.3f}m x {optimized_thickness:.3f}m")
         
         # ANSYS Integration UI Block
         st.markdown("**ANSYS Finite Element Mesh Check**")
@@ -139,15 +179,15 @@ if cpp_is_ready:
         else:
             st.success("OPERATION SECURE: Terrain stability coefficients fully compliant.")
 
-    # NEW ADVANCED ACCORDION PANEL: LIFE-CYCLE SUSTAINABILITY AND BUSINESS ANALYTICS
+    # LIFE-CYCLE SUSTAINABILITY AND BUSINESS ANALYTICS PANEL
     st.markdown("---")
     st.subheader("Generative Value Engineering & Sustainability Analytics")
     
     m1, m2, m3, m4 = st.columns(4)
-    m1.metric("Optimized Section Area", f"{optimized_area:.4f} m²", help="The minimized thickness required to withstand environmental wind loads calculated inside C++ machine code.")
+    m1.metric("Optimized Section Area", f"{optimized_area:.4f} m²")
     m2.metric("Total Material Optimized", f"{optimized_volume:.1f} m³", delta=f"-{percentage_saved:.1f}% Reduction")
-    m3.metric("Project CapEx Saved", f"${financial_savings:,.2f}", delta="Cost Reduced", delta_color="normal")
-    m4.metric("Embodied Carbon Offset", f"{carbon_mass_saved:.1f} kg CO₂e", delta="Emissions Cut", delta_color="normal")
+    m3.metric("Project CapEx Saved", f"${financial_savings:,.2f}", delta="Cost Reduced")
+    m4.metric("Embodied Carbon Offset", f"{carbon_mass_saved:.1f} kg CO₂e", delta="Emissions Cut")
 
     # Native Data Exporters Configuration Deck
     st.markdown("---")
@@ -157,12 +197,7 @@ if cpp_is_ready:
     with exp1:
         csv_data = f"Configuration Name,Column_Width,Column_Thickness,Bay_Width,Story_Height\n"
         csv_data += f"Optimized_Design_State,{optimized_thickness:.4f},{optimized_thickness:.4f},{bay_width:.2f},{floor_height:.2f}\n"
-        st.download_button(
-            label="Export SOLIDWORKS Design Table (.CSV)",
-            data=csv_data,
-            file_name="solidworks_design_table.csv",
-            mime="text/csv"
-        )
+        st.download_button(label="Export SOLIDWORKS Design Table (.CSV)", data=csv_data, file_name="solidworks_design_table.csv", mime="text/csv")
         
     with exp2:
         apdl_script = "/PREP7\nET,1,LINK180\nMP,EX,1,2.0E7\n"
@@ -180,11 +215,7 @@ if cpp_is_ready:
         apdl_script += "D,1,ALL,0\nD,2,ALL,0\n"
         top_left_node = num_floors * 2 + 1
         apdl_script += f"F,{top_left_node},FX,{wind_force:.2f}\n/SOLU\nSOLVE\n"
-        st.download_button(
-            label="Export ANSYS APDL Simulation Deck (.DAT)",
-            data=apdl_script,
-            file_name="ansys_simulation_deck.dat",
-            mime="text/plain"
-        )
+        st.download_button(label="Export ANSYS APDL Simulation Deck (.DAT)", data=apdl_script, file_name="ansys_simulation_deck.dat", mime="text/plain")
 else:
-    st.error("High-speed C++ calculation library engine (`libengine.so`) could not be resolved or found.")
+    st.close()
+    st.error("High-speed C++ calculation library engine (libengine.so) could not be resolved or found.")

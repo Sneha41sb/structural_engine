@@ -1,38 +1,42 @@
 #include <cmath>
 
-// extern "C" makes the compiled symbols plainly visible to Python's ctypes interface
 extern "C" {
 
-    double simulate_and_optimize_core(int floors, double height, double width, double wind_load, double structural_safety_limit) {
-        double current_area = 0.25; // Base starting cross-sectional area (m²)
-        double E = 2.0e7;           // Young's Modulus of standard structural concrete (kN/m²)
+    // Advanced Core Solver mapping CAD feature limits and FEA stress evaluation metrics
+    double simulate_and_optimize_core(int floors, double height, double width, double wind_load, double structural_safety_limit, double material_yield_strength) {
         
-        // Generative Optimization Loop: Iteratively trims material sizes at machine speeds
+        double current_area = 0.25; // Default starting cross-section area (m²)
+        double E = 2.0e7;           // Young's Modulus of structural concrete (kN/m²)
+        
+        // Generative Optimization Loop: Runs at native machine speed
         for (int i = 0; i < 100; i++) {
             double total_height = floors * height;
             double Moment_of_Inertia = (current_area * current_area) / 12.0;
             
-            // High-speed manual cubing calculation loop (Fast replacement for std::pow)
+            // 1. FEA Structural Simulation (ANSYS Principle)
             double total_height_cubed = total_height * total_height * total_height;
             double structural_drift = (wind_load * total_height_cubed) / (3.0 * E * Moment_of_Inertia);
-            
             double drift_mm = structural_drift * 1000.0;
             
-            // Constraint Boundary Check: If the building sways past limits, step back to last safe size and exit
-            if (drift_mm > structural_safety_limit) {
-                current_area += 0.005;
+            // Calculate Max Internal Stress (Sigma = My / I)
+            double max_bending_moment = wind_load * total_height; 
+            double half_thickness = std::sqrt(current_area) / 2.0; 
+            double calculated_stress = (max_bending_moment * half_thickness) / Moment_of_Inertia;
+            
+            // 2. Multi-Software Constraint Verification Check
+            // If the structure bends too much OR exceeds material yield limits, reject the trim step
+            if (drift_mm > structural_safety_limit || calculated_stress > material_yield_strength) {
+                current_area += 0.005; // Revert to last safe geometric boundary profile
                 break;
             }
             
-            // Value Engineering Action: Safely reduce cross-sectional thickness
-            current_area -= 0.005;
+            current_area -= 0.005; // Shave material area (CAD Optimization Action)
             
-            // Safety guardrail to prevent physical elements from disappearing to zero
             if (current_area < 0.01) {
                 current_area = 0.01;
                 break;
             }
         }
-        return current_area; // Returns optimized structural dimensions down to Python
+        return current_area; // Return optimized parameter back to the web frontend
     }
 }
